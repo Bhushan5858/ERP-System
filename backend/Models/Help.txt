@@ -1,0 +1,84 @@
+1. User Model (User.js)
+js
+Copy
+Edit
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ["Admin", "Manager", "Developer"], required: true }
+}, { timestamps: true });
+
+module.exports = mongoose.model("User", userSchema);
+
+
+
+
+
+2. Attendance Model (Attendance.js)
+
+const mongoose = require("mongoose");
+
+const attendanceSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  date: { type: String, required: true },
+  clockIn: { type: String },
+  clockOut: { type: String }
+}, { timestamps: true });
+
+module.exports = mongoose.model("Attendance", attendanceSchema);
+
+
+
+
+3. Timesheet Model (Timesheet.js)
+
+const mongoose = require("mongoose");
+
+const timesheetSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  date: { type: String, required: true },
+  workDescription: { type: String, required: true },
+  hoursWorked: { type: Number, required: true }
+}, { timestamps: true });
+
+module.exports = mongoose.model("Timesheet", timesheetSchema);
+
+
+
+
+4. Leave Model (Leave.js)
+
+const mongoose = require("mongoose");
+
+const leaveSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  fromDate: { type: String, required: true },
+  toDate: { type: String, required: true },
+  type: { type: String, enum: ["Sick", "Paid", "Casual"], required: true },
+  status: { type: String, enum: ["Pending", "Approved", "Rejected"], default: "Pending" },
+  reason: { type: String }
+}, { timestamps: true });
+
+module.exports = mongoose.model("Leave", leaveSchema);
+
+
+
+
+5. Task Model (Task.js)
+
+
+const mongoose = require("mongoose");
+
+const taskSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String },
+  assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  assignedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  status: { type: String, enum: ["Pending", "In Progress", "Completed"], default: "Pending" },
+  dueDate: { type: String }
+}, { timestamps: true });
+
+module.exports = mongoose.model("Task", taskSchema);
