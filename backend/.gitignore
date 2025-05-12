@@ -15,5 +15,5 @@ build/
 .DS_Store
 Thumbs.db
 
-# test
-.html
+# Ignore all .html files
+*.html
