@@ -1,11 +1,26 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const attendanceSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  date: { type: String, required: true },
-  clockIn: { type: String },
-  clockOut: { type: String }
-}, { timestamps: true });
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+          required: true
+        },
+        date: {
+          type: String, // "YYYY-MM-DD"
+          required: true
+        },
+        clockInTime: {
+          type: String, // "hh:mm A"
+        },
+        clockOutTime: {
+          type: String
+        },
+        totalHoursWorked: {
+          type: Number
+        }
+      });
 
 const Attendance = mongoose.model("Attendance", attendanceSchema);
-module.exports = Attendance;
+
+export default Attendance;
