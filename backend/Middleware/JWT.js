@@ -28,13 +28,13 @@ export const verifyToken = async(req,res,next)=>{
         if(!token) return res.status(401).json({message:"Unauthorized"});
 
         //verify the token
-        const decoded = jwt.verify(token,process.env.JWT_SECRETE_KEY);
+        const decoded = jwt.verify(token,JWT_SECRET_KEY);
 
         //find User By ID
         const user = await User.findOne({_id:decoded.user_id}).select("-password");
         if(!user) return res.status(401).json({message:"Unauthorized"});
 
-        console.log("in jwt file",user);
+       
         req.userData=user;
         next();
         

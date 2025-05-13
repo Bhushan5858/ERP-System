@@ -3,7 +3,12 @@ import User from "../Models/UserModel.js";
 import bcrypt from "bcrypt";
 
 export const addUser= async(req,res)=>{
-    const {name,email,password}=req.body;
+
+    //check if user is admin
+    if(req.userData.role !== "Admin") return res.status(403).json({message:"Access Denied"});
+
+    
+    const {name,email,password,role}=req.body;
   
     try {
         
@@ -20,7 +25,7 @@ export const addUser= async(req,res)=>{
             name,
             email,
             password:hashedPassword,
-            role:"Developer"
+            role,
         })
 
         await newUser.save();
