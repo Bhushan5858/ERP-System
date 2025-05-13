@@ -1,7 +1,8 @@
+import { generateToken } from "../Middleware/JWT.js";
 import User from "../Models/UserModel.js";
 import bcrypt from "bcrypt";
 
-export const signup = async(req,res)=>{
+export const addUser= async(req,res)=>{
     const {name,email,password}=req.body;
   
     try {
@@ -28,6 +29,43 @@ export const signup = async(req,res)=>{
 
     } catch (error) {
         console.log(error);
+        res.status(500).json({message:"Internal server error"});
+        
+    }
+}
+
+
+export const login=async(req,res)=>{
+    const {email,password}=req.body;
+
+
+    try {
+        
+        //check if email Exists
+        const user = await User.findOne({email:email});
+        if(!user) return res.status(400).json({message:"User not found"})
+
+        //check if password is correct
+        const isMatch = await bcrypt.compare(password,user.password);
+
+        if(!isMatch ) return res.status(400).json({message:"Invalid Password"})
+
+        //genrate Token
+        generateToken(user._id,res);
+
+            const userData = {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            };
+
+        //send response 
+        res.status(200).json({message:"Login Successfull",user:userData})
+
+
+    } catch (error) {
+        console.log("error in login controller",error);
         res.status(500).json({message:"Internal server error"});
         
     }
