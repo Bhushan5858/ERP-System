@@ -77,3 +77,26 @@ export const clockIn = async (req, res) => {
     }
   }
   
+
+  export const getTodayAttendance = async (req, res) => {
+    //check if user is admin or manager
+    if (req.userData.role !== "Admin" && req.userData.role !== "Manager") {
+      return res.status(403).json({ message: "Access Denied" });
+    }
+//admin and manger can see how many users are clocked in
+    const today = moment().format("YYYY-MM-DD");
+  
+    try {
+      const records = await Attendance.find({
+        date: today,
+        clockInTime: { $exists: true }
+      }).populate('userId', 'name role');
+  
+      if (!records.length) return res.status(404).json({ message: "No records found" });
+  
+      res.status(200).json(records);
+    } catch (err) {
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+
+  }
