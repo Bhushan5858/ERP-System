@@ -15,9 +15,7 @@ app.use(express.json());
 import userRoutes from './Routes/UserRoutes.js';
 app.use('/api/user',userRoutes);
 
-//Attendance Routes
-import attendanceRoutes from './Routes/AttendanceRoutes.js';
-app.use('/api/attendance',attendanceRoutes);
+
 
 app.listen(PORT,()=>{
     console.log(`Servar is runnig on port ${process.env.PORT}`)

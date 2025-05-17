@@ -17,35 +17,46 @@ module.exports = mongoose.model("User", userSchema);
 
 
 
-2. Attendance Model (Attendance.js)
+✅ Step 1: Combined Timesheet Model (TimesheetModel.js)
+js
+Copy
+Edit
+import mongoose from 'mongoose';
 
-const mongoose = require("mongoose");
+const TaskSchema = new mongoose.Schema({
+  taskId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Task'
+  },
+  description: String,
+  hoursSpent: Number
+});
 
-const attendanceSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  date: { type: String, required: true },
-  clockIn: { type: String },
-  clockOut: { type: String }
-}, { timestamps: true });
+const TimesheetSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  date: {
+    type: String, // Format: YYYY-MM-DD
+    required: true
+  },
+  clockInTime: String,
+  clockOutTime: String,
+  workSummery: String,
+  totalHours: Number,
+  notes: String,    (optional)
+  status: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Pending'
+  }
+});
 
-module.exports = mongoose.model("Attendance", attendanceSchema);
+TimesheetSchema.index({ userId: 1, date: 1 }, { unique: true });
 
-
-
-
-3. Timesheet Model (Timesheet.js)
-
-const mongoose = require("mongoose");
-
-const timesheetSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  date: { type: String, required: true },
-  workDescription: { type: String, required: true },
-  hoursWorked: { type: Number, required: true }
-}, { timestamps: true });
-
-module.exports = mongoose.model("Timesheet", timesheetSchema);
-
+export default mongoose.model('Timesheet', TimesheetSchema);
 
 
 
