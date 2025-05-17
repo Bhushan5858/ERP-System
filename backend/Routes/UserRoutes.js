@@ -1,15 +1,15 @@
-import express from 'express';
-import { addUser, deleteUser, getAllUsers, getOtherProfile, getProfile, login, updateUser } from '../Controller/UserController.js';
-import { verifyToken } from '../Middleware/JWT.js';
+import express from "express";
+import bcrypt from "bcrypt";
+import { verifyToken } from "../Middleware/JWT.js";
+import { addUser, login, logout } from "../Controller/UserController.js";
+
 
 const router = express.Router();
 
-router.post('/addUser',verifyToken, addUser);    //admin only
-router.post('/login', login);        // All users
-router.get('/getAllUsers',verifyToken,getAllUsers);  //only Admin
-router.get('/getProfile',verifyToken,getProfile); // All users
-router.get('/getOtherProfile',verifyToken,getOtherProfile); //only Admin and Manager
-router.get('/updateUser',verifyToken,updateUser ); //only Admin
-router.get('/deleteUser',verifyToken,deleteUser); //only Admin
+router.post('/login',login)
+router.post('/addUser',verifyToken,addUser)
+router.post('/logout',verifyToken,logout)
+
+
 
 export default router;
