@@ -96,6 +96,11 @@ export const clockIn = async (req, res) => {
 
   export const getAttendance = async (req, res) => {
     const userId = req.userData._id;
+    //check if the user is developer
+    if(req.userData.role !== "Developer"){
+      return res.status(403).json({ message: "You are not Developer" });
+    }
+    
     //get the all the documents between range of dates
     const { startDate, endDate } = req.query;
     if (!startDate || !endDate) {
@@ -116,4 +121,80 @@ export const clockIn = async (req, res) => {
     } catch (err) {
       res.status(500).json({ message: "Server error", error: err.message });
     }
+    }
+
+
+    export const presentAtDate = async (req, res) => { 
+      //check if the user is admin or manager
+      if (req.userData.role !== "Admin" && req.userData.role !== "Manager") {
+        return res.status(403).json({ message: "You are not authorized to view this." });
+      }
+      //getting the list of who is present today and returning name and EID and role only include those who clocked in today
+      try {
+        //if date is not given from query so take the today date
+
+         let{ date } = req.query;
+
+         if(!date) {
+         date = moment().format("YYYY-MM-DD");
+         }
+        const attendance = await Timesheet.find({
+          date: date,
+          clockIn: { $ne: null }  // Ensure clockIn is not null
+        }).populate("userId", "name EID role");
+  
+        if (attendance.length === 0) {
+          return res.status(404).json({ message: "No attendance records found for today." });
+        }
+  
+        const presentUsers = attendance.map(record => ({
+          name: record.userId.name,
+          EID: record.EID,
+          role: record.userId.role
+        }));
+  
+        res.status(200).json(presentUsers);
+  
+      } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+      }
+
+    }
+
+
+    export const getTimeSheetAtDate = async (req, res) => {
+      //chek if the user is admin or manger
+      if (req.userData.role !== "Admin" && req.userData.role !== "Manager") {
+        return res.status(403).json({ message: "You are not authorized to view this." });
+      }
+
+      //getting the list of Time sheet at date and returning all the data
+      try{
+        //if the date is not given from query so take the today date
+        let{ date } = req.query;
+        if(!date) {
+          date = moment().format("YYYY-MM-DD");
+        }
+        //return the timesheet data and developers name 
+        const timesheet = await Timesheet.find({
+          date: date,
+          clockIn: { $ne: null }  // Ensure clockIn is not null
+        }).populate("userId", "name EID role");
+        if (timesheet.length === 0) {
+          return res.status(404).json({ message: "No timesheet records found for today." });
+        }
+        const timesheetData = timesheet.map(record => ({
+          name: record.userId.name,
+          EID: record.EID,
+          date: record.date,
+          clockIn: record.clockIn,
+          clockOut: record.clockOut,
+          totalHours: record.totalHours,
+          workSummary: record.workSummary
+        }));
+        res.status(200).json(timesheetData);
+      
+      }catch(err){
+        res.status(500).json({ message: "Server error", error: err.message });
+      }
     }

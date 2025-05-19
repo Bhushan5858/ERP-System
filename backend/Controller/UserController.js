@@ -67,6 +67,110 @@ export const addUser = async (req, res) => {
 }
 
 
+
+export const getAllUsers = async (req, res) => {
+    if (req.userData.role !== "Admin" && req.userData.role !== "Manager") {
+        return res.status(403).json({ message: "Access Denied" });
+    }
+   //get all users like developer and manager without password
+   try{
+    const users = await User.find({ role: { $in: ["Developer", "Manager"] } }).select("-password");
+    if (users.length === 0) {
+        return res.status(404).json({ message: "No users found" });
+    }
+    res.status(200).json(users);
+}catch (error) {
+    console.log("Error in getting users", error);
+    res.status(500).json({ message: "Internal server error" });
+}
+}
+
+
+
+export const updateUser = async (req, res) => {
+    const { userId, EID, name, email, password, role } = req.body;
+
+    // Check if the logged-in user is an Admin
+    if (req.userData.role !== "Admin") {
+        return res.status(403).json({ message: "Access Denied" });
+    }
+
+    // Prevent admin from updating their own data
+    if (req.userData._id === userId) {
+        return res.status(403).json({ message: "You cannot update your own data" });
+    }
+
+    try {
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Update user data
+        user.EID = EID || user.EID;
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.role = role || user.role;
+
+        // Only update password if provided
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10); // <-- Hash password!
+            user.password = hashedPassword;
+        }
+
+        await user.save();
+
+        return res.status(200).json({ message: "User updated successfully" });
+
+    } catch (error) {
+        console.error("Error updating user:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    const { userId } = req.query;
+
+     // Check if the logged-in user is an Admin
+     if (req.userData.role !== "Admin") {
+        return res.status(403).json({ message: "Access Denied" });
+    }
+
+    try {
+        const user = await User.findByIdAndDelete(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        return res.status(200).json({ message: "User deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+
+
+export const getProfile=async(req,res)=>{
+const userId =req.userData._id;
+console.log(userId);
+try {
+
+    const user = await User.findById(userId).select("-password");
+
+    if(!user) res.status(404).json({message:"user Not Found"});
+
+    res.status(200).json({user})
+
+} catch (error) {
+    console.error("Error getting profile", error);
+    return res.status(500).json({ message: "Internal server error" });
+}
+
+}
+
+
 export const logout = async (req, res) => {
     //clear the cookie
     res.clearCookie("JWT");
