@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import {Toaster} from 'react-hot-toast';
+import Home from "./Pages/Home.jsx"
+import Login from "./Pages/Login.jsx"
+
 
 
 function App() {
@@ -6,8 +9,10 @@ function App() {
 
   return (
     <>
-     <div className='h-screen w-screen bg-gray-50'></div>
-    </>
+    <Toaster position='top-center' reverseOrder={false}/>
+  {/* <Home/> */}
+  <Login/>
+</>
   )
 }
 
