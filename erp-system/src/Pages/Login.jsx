@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {toast} from 'react-hot-toast'
 import { MessageSquare, Mail, Lock, EyeOff, Eye } from 'lucide-react';
 import LOGO from '../assets/Logo.png';
 import { useAuthUserStore } from '../Store/AuthUserStore';
+import { useNavigate } from 'react-router-dom';
 
 
 const Login = () => {
-    const {demo}=useAuthUserStore();
-    console.log(demo);
+   const navigate =useNavigate();
+  const {login,authUser}=useAuthUserStore();
+  
+  useEffect(()=>{
+    if(authUser){
+      navigate('/home');
+    }
+  } ,[authUser,navigate]);
+  
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -38,6 +46,7 @@ return true;
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
+      login(formData);
       toast.success("Login successful");
     }
   };
